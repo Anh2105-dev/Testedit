@@ -132,7 +132,7 @@ def control():
     cmds = data.get("cmds", [])
     if isinstance(cmds, str):
         cmds = [cmds]  # chuyển chuỗi đơn thành danh sách
-    if cmds == "PID_Setpoints":
+    if cmds == ["PID_Setpoints"] or (len(cmds) == 1 and cmds[0] == "PID_Setpoints"):
         target_values['pitch'] = float(data.get('pitch', 0.0))
         target_values['yaw'] = float(data.get('yaw', 0.0))
         target_values['roll'] = float(data.get('roll', 0.0))
@@ -169,6 +169,9 @@ def control():
 
     print(f" Xử lý lệnh: {cmds} (PWM: Left={pwmLeftPS2}, Right={pwmRightPS2})")
     # TODO: Gửi lệnh điều khiển động cơ tại đây
+    # Nếu cmds là danh sách, lấy phần tử đầu tiên
+    if isinstance(cmds, list) and len(cmds) > 0:
+        cmds = cmds[0]
     if cmds == "Tien":
         GPIO.output(4, GPIO.LOW)
         GPIO.output(18, GPIO.HIGH)
