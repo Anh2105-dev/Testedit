@@ -736,39 +736,37 @@ def pid_control(axis, current, target, Kp, Ki, Kd):
     prev_error[axis] = error
     return Kp * error + Ki * integral_error[axis] + Kd * derivative
 
-def apply_corrections(out_yaw, out_pitch, roll_out, depth_out):
-    if abs(out_yaw) > 1:
-        duty_yaw = int(min(abs(out_yaw), 65535))
-        if out_yaw > 0:
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.HIGH)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.LOW)
+def apply_corrections(out_yaw, out_pitch, out_roll, out_depth):   
+        if out_pitch > 0 & abs(pitch - target_values["pitch"]) > 2:
+            GPIO.output(6, GPIO.HIGH)
+            GPIO.output(12, GPIO.LOW)
+            GPIO.output(13, GPIO.HIGH)
+            GPIO.output(17, GPIO.LOW) 
+            
+            GPIO.output(16, GPIO.LOW)
+            GPIO.output(26, GPIO.HIGH)
+            GPIO.output(20, GPIO.LOW)
+            GPIO.output(21, GPIO.HIGH) 
 
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.HIGH)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.LOW)
+            LPWM1.duty_cycle = int(abs(out_pitch) * 65535 / 255)
+            RPWM1.duty_cycle = int(abs(out_pitch) * 65535 / 255)
+            LPWM2.duty_cycle = int(abs(out_pitch) * 65535 / 255)
+            RPWM2.duty_cycle = int(abs(out_pitch) * 65535 / 255)
+        elif out_pitch < 0 & abs(pitch - target_values["pitch"]) > 2:
+            GPIO.output(6, GPIO.LOW)
+            GPIO.output(12, GPIO.HIGH)
+            GPIO.output(13, GPIO.LOW)
+            GPIO.output(17, GPIO.HIGH) 
+            
+            GPIO.output(16, GPIO.HIGH)
+            GPIO.output(26, GPIO.LOW)
+            GPIO.output(20, GPIO.HIGH)
+            GPIO.output(21, GPIO.LOW) 
 
-            LPWM1.duty_cycle = 0
-            RPWM1.duty_cycle = duty_yaw
-            LPWM2.duty_cycle = duty_yaw
-            RPWM2.duty_cycle = 0
-        else:
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.LOW)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.HIGH)
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.LOW)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.HIGH)
-
-            LPWM1.duty_cycle = duty_yaw
-            RPWM1.duty_cycle = 0
-            LPWM2.duty_cycle = 0
-            RPWM2.duty_cycle = duty_yaw
+            LPWM1.duty_cycle = int(abs(out_pitch) * 65535 / 255)
+            RPWM1.duty_cycle = int(abs(out_pitch) * 65535 / 255)
+            LPWM2.duty_cycle = int(abs(out_pitch) * 65535 / 255)
+            RPWM2.duty_cycle = int(abs(out_pitch) * 65535 / 255)
             
 def pid_loop():
     global pitch, roll, yaw, current_depth
@@ -782,8 +780,8 @@ def pid_loop():
                 acc_pitch = math.degrees(math.atan2(ay, az))
                 acc_roll = math.degrees(math.atan2(-ax, math.sqrt(ay**2 + az**2)))
 
-                pitch = acc_pitch
-                roll = acc_roll
+                pitch =  alpha * pitch + (1 - alpha) * acc_pitch
+                roll = alpha * roll + (1 - alpha) * acc_roll
 
                 out_pitch = pid_control("pitch", pitch, target_values["pitch"], Kp_pitch, Ki_pitch, Kd_pitch)
                 out_roll = pid_control("roll", roll, target_values["roll"], Kp_roll, Ki_roll, Kd_roll)
