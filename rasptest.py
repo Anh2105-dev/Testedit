@@ -64,18 +64,18 @@ pca.frequency = 1000 #Tần số cho động cơ
 # Gán các kênh băm xung cho động cơ trên mạch PCA9685
 LPWM1 = pca.channels[0]
 RPWM1 = pca.channels[1]
-LPWM2 = pca.channels[2]
-RPWM2 = pca.channels[3]
-LPWM3 = pca.channels[4]
-RPWM3 = pca.channels[5]
-LPWM4 = pca.channels[6]
-RPWM4 = pca.channels[7]
-LPWM5 = pca.channels[8]
-RPWM5 = pca.channels[9]
-LPWM6 = pca.channels[10]
-RPWM6 = pca.channels[11]
-LPWM7 = pca.channels[12]
-RPWM7 = pca.channels[13]
+LPWM5 = pca.channels[2]
+RPWM5 = pca.channels[3]
+LPWM2 = pca.channels[4]
+RPWM2 = pca.channels[5]
+LPWM6 = pca.channels[6]
+RPWM6 = pca.channels[7]
+LPWM3 = pca.channels[8]
+RPWM3 = pca.channels[9]
+LPWM7 = pca.channels[10]
+RPWM7 = pca.channels[11]
+LPWM4 = pca.channels[12]
+RPWM4 = pca.channels[13]
 LPWM8 = pca.channels[14]
 RPWM8 = pca.channels[15]
 
@@ -160,8 +160,8 @@ def control():
             GPIO.output(4, GPIO.HIGH)
             LPWM3.duty_cycle = PWMWEB
             RPWM3.duty_cycle = 0
-            LPWM4.duty_cycle = PWMWEB
-            RPWM4.duty_cycle = 0
+            LPWM4.duty_cycle = 0
+            RPWM4.duty_cycle = PWMWEB
         elif cmd == "Tientrai":
             GPIO.output(4, GPIO.HIGH)
             LPWM2.duty_cycle = 0
@@ -226,24 +226,24 @@ def control():
             RPWM3.duty_cycle = 0
         elif cmd == "Lan":
             GPIO.output(4, GPIO.HIGH)
-            LPWM5.duty_cycle = PWMWEB
-            RPWM5.duty_cycle = 0
+            LPWM5.duty_cycle = 0
+            RPWM5.duty_cycle = PWMWEB
             LPWM6.duty_cycle = PWMWEB
             RPWM6.duty_cycle = 0
             LPWM7.duty_cycle = PWMWEB
             RPWM7.duty_cycle = 0
-            LPWM8.duty_cycle = PWMWEB
-            RPWM8.duty_cycle = 0
+            LPWM8.duty_cycle = 0
+            RPWM8.duty_cycle = PWMWEB
         elif cmd == "Noi":
             GPIO.output(4, GPIO.HIGH)
-            LPWM5.duty_cycle = 0
-            RPWM5.duty_cycle = PWMWEB
+            LPWM5.duty_cycle = PWMWEB
+            RPWM5.duty_cycle = 0
             LPWM6.duty_cycle = 0
             RPWM6.duty_cycle = PWMWEB
             LPWM7.duty_cycle = 0
             RPWM7.duty_cycle = PWMWEB
-            LPWM8.duty_cycle = 0
-            RPWM8.duty_cycle = PWMWEB
+            LPWM8.duty_cycle = PWMWEB
+            RPWM8.duty_cycle = 0
         elif cmd == "Nghientruoc_Down":
             GPIO.output(4, GPIO.HIGH)
             LPWM5.duty_cycle = PWMWEB
@@ -325,9 +325,9 @@ def control():
             LPWM8.duty_cycle = 0
             RPWM8.duty_cycle = PWMWEB
         elif cmd == "Batden":
-            GPIO.output(11, GPIO.HIGH) 
+            GPIO.output(27, GPIO.HIGH) 
         elif cmd == "Tatden":
-            GPIO.output(11, GPIO.LOW)
+            GPIO.output(27, GPIO.LOW)
         elif cmd == "Laynuoc":
             GPIO.output(18, GPIO.HIGH)
         elif cmd == "Dunglaynuoc":
@@ -336,8 +336,8 @@ def control():
             GPIO.output(4, GPIO.HIGH)           
             LPWM3.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
             RPWM3.duty_cycle = 0
-            LPWM4.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
-            RPWM4.duty_cycle = 0
+            LPWM4.duty_cycle = 0
+            RPWM4.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
         elif cmd == "TientraiPS2":
             GPIO.output(4, GPIO.HIGH)
             LPWM2.duty_cycle = 0
@@ -404,28 +404,28 @@ def control():
             RPWM3.duty_cycle = 0
         elif cmd == "LanPS2":
             GPIO.output(4, GPIO.HIGH)
-            LPWM5.duty_cycle = int(pwmRightPS2 * 65535 / 255)
-            RPWM5.duty_cycle = 0
+            LPWM5.duty_cycle = 0
+            RPWM5.duty_cycle = int(pwmRightPS2 * 65535 / 255)
             LPWM6.duty_cycle = int(pwmRightPS2 * 65535 / 255)
             RPWM6.duty_cycle = 0
             LPWM7.duty_cycle = int(pwmRightPS2 * 65535 / 255)
             RPWM7.duty_cycle = 0
-            LPWM8.duty_cycle = int(pwmRightPS2 * 65535 / 255)
-            RPWM8.duty_cycle = 0
+            LPWM8.duty_cycle = 0
+            RPWM8.duty_cycle = int(pwmRightPS2 * 65535 / 255)
         elif cmd == "NoiPS2":
             GPIO.output(4, GPIO.HIGH)
-            LPWM5.duty_cycle = 0
-            RPWM5.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            LPWM5.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            RPWM5.duty_cycle = 0
             LPWM6.duty_cycle = 0
             RPWM6.duty_cycle = int(pwmRightPS2 * 65535 / 255)
             LPWM7.duty_cycle = 0
             RPWM7.duty_cycle = int(pwmRightPS2 * 65535 / 255)
-            LPWM8.duty_cycle = 0
-            RPWM8.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            LPWM8.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            RPWM8.duty_cycle = 0
         elif cmd == "BatdenPS2":
-            GPIO.output(11, GPIO.HIGH) 
+            GPIO.output(27, GPIO.HIGH) 
         elif cmd == "TatdenPS2":
-            GPIO.output(11, GPIO.LOW)
+            GPIO.output(27, GPIO.LOW)
         elif cmd == "LaynuocPS2":
             GPIO.output(18, GPIO.HIGH)       
         elif cmd == "DunglaynuocPS2":
@@ -447,7 +447,7 @@ def control():
             LPWM7.duty_cycle = 0
             RPWM7.duty_cycle = 0
             LPWM8.duty_cycle = 0
-            RPWM8duty_cycle = 0
+            RPWM8.duty_cycle = 0
     return jsonify({"status": "ok"})
 camera = cv2.VideoCapture(0) #Mở camera mặc định (index 0)
 #Đặt độ phân giải khung hình video: 1280x720
@@ -497,30 +497,14 @@ def pid_control(axis, current, target, Kp, Ki, Kd):
 
 def apply_corrections(out_yaw, out_pitch, out_roll, out_depth):   
         if out_pitch > 0  and Dung == 1 and  abs(pitch - target_values["pitch"]) > 2:
-            GPIO.output(6, GPIO.HIGH)
-            GPIO.output(12, GPIO.LOW)
-            GPIO.output(13, GPIO.HIGH)
-            GPIO.output(17, GPIO.LOW) 
-            
-            GPIO.output(16, GPIO.LOW)
-            GPIO.output(26, GPIO.HIGH)
-            GPIO.output(20, GPIO.LOW)
-            GPIO.output(21, GPIO.HIGH) 
+            GPIO.output(4, GPIO.HIGH)
 
             LPWM1.duty_cycle = int(abs(out_pitch) * 65535 / 255)
             RPWM1.duty_cycle = int(abs(out_pitch) * 65535 / 255)
             LPWM2.duty_cycle = int(abs(out_pitch) * 65535 / 255)
             RPWM2.duty_cycle = int(abs(out_pitch) * 65535 / 255)
         elif out_pitch < 0 and Dung == 1 and  abs(pitch - target_values["pitch"]) > 2:
-            GPIO.output(6, GPIO.LOW)
-            GPIO.output(12, GPIO.HIGH)
-            GPIO.output(13, GPIO.LOW)
-            GPIO.output(17, GPIO.HIGH) 
-            
-            GPIO.output(16, GPIO.HIGH)
-            GPIO.output(26, GPIO.LOW)
-            GPIO.output(20, GPIO.HIGH)
-            GPIO.output(21, GPIO.LOW) 
+            GPIO.output(4, GPIO.HIGH)
 
             LPWM1.duty_cycle = int(abs(out_pitch) * 65535 / 255)
             RPWM1.duty_cycle = int(abs(out_pitch) * 65535 / 255)
