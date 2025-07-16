@@ -47,7 +47,7 @@ last_time = time.time()
 alpha = 0.9  # Hệ số Complementary Filter (tinh chỉnh nếu cần)
 
 Kp_yaw = Kp_pitch = Kp_roll = 1.0
-Ki_yaw = Ki_pitch = Ki_roll = 0.0
+Ki_yaw = Ki_pitch = Ki_roll = 0.01
 Kd_yaw = Kd_pitch = Kd_roll = 0.1
 
 prev_error = {'yaw': 0, 'pitch': 0, 'roll': 0}
@@ -70,33 +70,14 @@ LPWM3 = pca.channels[4]
 RPWM3 = pca.channels[5]
 LPWM4 = pca.channels[6]
 RPWM4 = pca.channels[7]
-#Gắn các kênh cho động cơ bơm lấy mẫu nước
-in1 = pca.channels[8]
-in2 = pca.channels[9]
-in3 = pca.channels[10]
-in4 = pca.channels[11]
-
-
-# Thiết lập GPIO điều khiển động cơ
-#GPIO 04 = in1_L298_1
-#GPIO 18 = in2_L298_1
-#GPIO 27 = in3_L298_1 
-#GPIO 22 = in4_L298_1
-
-#GPIO 23 = in1_L298_2
-#GPIO 24 = in2_L298_2
-#GPIO 25 = in3_L298_2
-#GPIO 05 = in4_L298_2
-
-#GPIO 06 = in1_L298_3
-#GPIO 12 = in2_L298_3
-#GPIO 13 = in3_L298_3
-#GPIO 19 = in4_L298_3
-
-#GPIO 16 = in1_L298_4
-#GPIO 26 = in2_L298_4
-#GPIO 20 = in3_L298_4
-#GPIO 21 = in4_L298_4
+LPWM5 = pca.channels[8]
+RPWM5 = pca.channels[9]
+LPWM6 = pca.channels[10]
+RPWM6 = pca.channels[11]
+LPWM7 = pca.channels[12]
+RPWM7 = pca.channels[13]
+LPWM8 = pca.channels[14]
+RPWM8 = pca.channels[15]
 
 #GPIO 17 = light_on
 # Thiết lập các chân GPIO làm OUTPUT
@@ -116,6 +97,7 @@ def get_mode():
 @app.route('/control', methods=['POST'])
 def control():
     global mode
+    global Dung
     data = request.get_json()   
     print(" Dữ liệu nhận:", data)
 
@@ -175,512 +157,281 @@ def control():
     # Nếu cmds là danh sách, lấy phần tử đầu tiên
     for cmd in cmds:
         if cmd == "Tien":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.HIGH)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.HIGH) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.LOW)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.LOW)        
-            LPWM1.duty_cycle = PWMWEB
-            RPWM1.duty_cycle = PWMWEB
-            LPWM2.duty_cycle = PWMWEB
-            RPWM2.duty_cycle = PWMWEB 
+            GPIO.output(4, GPIO.HIGH)
+            LPWM3.duty_cycle = PWMWEB
+            RPWM3.duty_cycle = 0
+            LPWM4.duty_cycle = PWMWEB
+            RPWM4.duty_cycle = 0
         elif cmd == "Tientrai":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.HIGH)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.HIGH)  
-
-            GPIO.output(23, GPIO.HIGH)
-            GPIO.output(24, GPIO.LOW)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.LOW)  
-            LPWM1.duty_cycle = PWMWEB
-            RPWM1.duty_cycle = PWMWEB 
-            LPWM2.duty_cycle = PWMWEB
+            GPIO.output(4, GPIO.HIGH)
+            LPWM2.duty_cycle = 0
             RPWM2.duty_cycle = PWMWEB
+            LPWM3.duty_cycle = PWMWEB
+            RPWM3.duty_cycle = 0
+            LPWM4.duty_cycle = PWMWEB
+            RPWM4.duty_cycle = 0
         elif cmd == "Tienphai":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.HIGH)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.HIGH) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.LOW)
-            GPIO.output(25, GPIO.HIGH)
-            GPIO.output(5, GPIO.LOW)  
-            LPWM1.duty_cycle = PWMWEB 
+            GPIO.output(4, GPIO.HIGH)
+            LPWM1.duty_cycle = 0
             RPWM1.duty_cycle = PWMWEB
-            LPWM2.duty_cycle = PWMWEB 
-            RPWM2.duty_cycle = PWMWEB
+            LPWM3.duty_cycle = PWMWEB
+            RPWM3.duty_cycle = 0
+            LPWM4.duty_cycle = PWMWEB
+            RPWM4.duty_cycle = 0
         elif cmd == "Lui":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.LOW)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.LOW) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.HIGH)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.HIGH)  
+            GPIO.output(4, GPIO.HIGH) 
             LPWM1.duty_cycle = PWMWEB 
-            RPWM1.duty_cycle = PWMWEB 
+            RPWM1.duty_cycle = 0 
             LPWM2.duty_cycle = PWMWEB
-            RPWM2.duty_cycle = PWMWEB
+            RPWM2.duty_cycle = 0
         elif cmd == "Luitrai":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.LOW)
-            GPIO.output(27, GPIO.HIGH)
-            GPIO.output(22, GPIO.LOW) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.HIGH)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.HIGH) 
+            GPIO.output(4, GPIO.HIGH)
+            LPWM4.duty_cycle = 0
+            RPWM4.duty_cycle = PWMWEB
             LPWM1.duty_cycle = PWMWEB 
-            RPWM1.duty_cycle = PWMWEB 
+            RPWM1.duty_cycle = 0 
             LPWM2.duty_cycle = PWMWEB
-            RPWM2.duty_cycle = PWMWEB
+            RPWM2.duty_cycle = 0
         elif cmd == "Luiphai":
             GPIO.output(4, GPIO.HIGH)
-            GPIO.output(18, GPIO.LOW)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.LOW) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.HIGH)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.HIGH) 
+            LPWM3.duty_cycle = 0
+            RPWM3.duty_cycle = PWMWEB
             LPWM1.duty_cycle = PWMWEB 
-            RPWM1.duty_cycle = PWMWEB
+            RPWM1.duty_cycle = 0
             LPWM2.duty_cycle = PWMWEB
-            RPWM2.duty_cycle = PWMWEB
+            RPWM2.duty_cycle = 0
         elif cmd == "Trai":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.HIGH)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.LOW) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.LOW)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.HIGH)  
-            LPWM1.duty_cycle = PWMWEB 
-            RPWM1.duty_cycle = PWMWEB
-            LPWM2.duty_cycle = PWMWEB 
-            RPWM2.duty_cycle = PWMWEB
+            GPIO.output(4, GPIO.HIGH)
+            LPWM1.duty_cycle = PWMWEB
+            RPWM1.duty_cycle = 0
+            LPWM3.duty_cycle = PWMWEB
+            RPWM3.duty_cycle = 0
         elif cmd == "Phai":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.LOW)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.HIGH) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.HIGH)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.LOW)      
-            LPWM1.duty_cycle = PWMWEB
-            RPWM1.duty_cycle = PWMWEB 
+            GPIO.output(4, GPIO.HIGH)
             LPWM2.duty_cycle = PWMWEB
-            RPWM2.duty_cycle = PWMWEB
+            RPWM2.duty_cycle = 0
+            LPWM4.duty_cycle = PWMWEB
+            RPWM4.duty_cycle = 0
         elif cmd == "Quaytrai":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.LOW)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.HIGH) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.LOW)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.HIGH)
+            GPIO.output(4, GPIO.HIGH)
             LPWM1.duty_cycle = PWMWEB
-            RPWM1.duty_cycle = PWMWEB
-            LPWM2.duty_cycle = PWMWEB
-            RPWM2.duty_cycle = PWMWEB 
+            RPWM1.duty_cycle = 0
+            LPWM4.duty_cycle = PWMWEB
+            RPWM4.duty_cycle = 0
         elif cmd == "Quayphai":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.HIGH)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.LOW) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.HIGH)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.LOW)
-            LPWM1.duty_cycle = PWMWEB
-            RPWM1.duty_cycle = PWMWEB 
-            LPWM2.duty_cycle = PWMWEB 
-            RPWM2.duty_cycle = PWMWEB
+            GPIO.output(4, GPIO.HIGH)
+            LPWM2.duty_cycle = PWMWEB
+            RPWM2.duty_cycle = 0
+            LPWM3.duty_cycle = PWMWEB
+            RPWM3.duty_cycle = 0
         elif cmd == "Lan":
-            GPIO.output(6, GPIO.LOW)
-            GPIO.output(12, GPIO.HIGH)
-            GPIO.output(13, GPIO.LOW)
-            GPIO.output(17, GPIO.HIGH) 
-        
-            GPIO.output(16, GPIO.LOW)
-            GPIO.output(26, GPIO.HIGH)
-            GPIO.output(20, GPIO.LOW)
-            GPIO.output(21, GPIO.HIGH) 
-            LPWM3.duty_cycle = PWMWEB
-            RPWM3.duty_cycle = PWMWEB
-            LPWM4.duty_cycle = PWMWEB 
-            RPWM4.duty_cycle = PWMWEB
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = PWMWEB
+            RPWM5.duty_cycle = 0
+            LPWM6.duty_cycle = PWMWEB
+            RPWM6.duty_cycle = 0
+            LPWM7.duty_cycle = PWMWEB
+            RPWM7.duty_cycle = 0
+            LPWM8.duty_cycle = PWMWEB
+            RPWM8.duty_cycle = 0
         elif cmd == "Noi":
-            GPIO.output(6, GPIO.HIGH)
-            GPIO.output(12, GPIO.LOW)
-            GPIO.output(13, GPIO.HIGH)
-            GPIO.output(17, GPIO.LOW) 
-        
-            GPIO.output(16, GPIO.HIGH)
-            GPIO.output(26, GPIO.LOW)
-            GPIO.output(20, GPIO.HIGH)
-            GPIO.output(21, GPIO.LOW) 
-            LPWM3.duty_cycle = PWMWEB 
-            RPWM3.duty_cycle = PWMWEB
-            LPWM4.duty_cycle = PWMWEB 
-            RPWM4.duty_cycle = PWMWEB    
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = 0
+            RPWM5.duty_cycle = PWMWEB
+            LPWM6.duty_cycle = 0
+            RPWM6.duty_cycle = PWMWEB
+            LPWM7.duty_cycle = 0
+            RPWM7.duty_cycle = PWMWEB
+            LPWM8.duty_cycle = 0
+            RPWM8.duty_cycle = PWMWEB
         elif cmd == "Nghientruoc_Down":
-            GPIO.output(6, GPIO.HIGH)
-            GPIO.output(12, GPIO.LOW)
-            GPIO.output(13, GPIO.HIGH)
-            GPIO.output(17, GPIO.LOW) 
-        
-            GPIO.output(16, GPIO.LOW)
-            GPIO.output(26, GPIO.LOW)
-            GPIO.output(20, GPIO.LOW)
-            GPIO.output(21, GPIO.LOW) 
-            LPWM3.duty_cycle = PWMWEB
-            RPWM3.duty_cycle = PWMWEB 
-            LPWM4.duty_cycle = PWMWEB
-            RPWM4.duty_cycle = PWMWEB
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = PWMWEB
+            RPWM5.duty_cycle = 0
+            LPWM6.duty_cycle = PWMWEB
+            RPWM6.duty_cycle = 0
+            LPWM7.duty_cycle = 0
+            RPWM7.duty_cycle = 0
+            LPWM8.duty_cycle = 0
+            RPWM8.duty_cycle = 0
         elif cmd == "Nghientruoc_Up":
-            GPIO.output(6, GPIO.LOW)
-            GPIO.output(12, GPIO.HIGH)
-            GPIO.output(13, GPIO.LOW)
-            GPIO.output(17, GPIO.HIGH) 
-        
-            GPIO.output(16, GPIO.LOW)
-            GPIO.output(26, GPIO.LOW)
-            GPIO.output(20, GPIO.LOW)
-            GPIO.output(21, GPIO.LOW) 
-            LPWM3.duty_cycle = PWMWEB
-            RPWM3.duty_cycle = PWMWEB 
-            LPWM4.duty_cycle = PWMWEB
-            RPWM4.duty_cycle = PWMWEB
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = 0
+            RPWM5.duty_cycle = PWMWEB
+            LPWM6.duty_cycle = 0
+            RPWM6.duty_cycle = PWMWEB
+            LPWM7.duty_cycle = 0
+            RPWM7.duty_cycle = 0
+            LPWM8.duty_cycle = 0
+            RPWM8.duty_cycle = 0
         elif cmd == "Nghientrai_Down":
-            GPIO.output(6, GPIO.HIGH)
-            GPIO.output(12, GPIO.LOW)
-            GPIO.output(13, GPIO.LOW)
-            GPIO.output(17, GPIO.LOW) 
-        
-            GPIO.output(16, GPIO.HIGH)
-            GPIO.output(26, GPIO.LOW)
-            GPIO.output(20, GPIO.LOW)
-            GPIO.output(21, GPIO.LOW) 
-            LPWM3.duty_cycle = PWMWEB 
-            RPWM3.duty_cycle = PWMWEB
-            LPWM4.duty_cycle = PWMWEB 
-            RPWM4.duty_cycle = PWMWEB 
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = PWMWEB
+            RPWM5.duty_cycle = 0
+            LPWM6.duty_cycle = 0
+            RPWM6.duty_cycle = 0
+            LPWM7.duty_cycle = PWMWEB
+            RPWM7.duty_cycle = 0
+            LPWM8.duty_cycle = 0
+            RPWM8.duty_cycle = 0
         elif cmd == "Nghientrai_Up":
-            GPIO.output(6, GPIO.LOW)
-            GPIO.output(12, GPIO.HIGH)
-            GPIO.output(13, GPIO.LOW)
-            GPIO.output(17, GPIO.LOW) 
-        
-            GPIO.output(16, GPIO.LOW)
-            GPIO.output(26, GPIO.HIGH)
-            GPIO.output(20, GPIO.LOW)
-            GPIO.output(21, GPIO.LOW) 
-            LPWM3.duty_cycle = PWMWEB 
-            RPWM3.duty_cycle = PWMWEB
-            LPWM4.duty_cycle = PWMWEB
-            RPWM4.duty_cycle = PWMWEB
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = 0
+            RPWM5.duty_cycle = PWMWEB
+            LPWM6.duty_cycle = 0
+            RPWM6.duty_cycle = 0
+            LPWM7.duty_cycle = 0
+            RPWM7.duty_cycle = PWMWEB
+            LPWM8.duty_cycle = 0
+            RPWM8.duty_cycle = 0
         elif cmd == "Nghienphai_Down":
-            GPIO.output(6, GPIO.LOW)
-            GPIO.output(12, GPIO.LOW)
-            GPIO.output(13, GPIO.HIGH)
-            GPIO.output(17, GPIO.LOW) 
-        
-            GPIO.output(16, GPIO.LOW)
-            GPIO.output(26, GPIO.LOW)
-            GPIO.output(20, GPIO.HIGH)
-            GPIO.output(21, GPIO.LOW) 
-            LPWM3.duty_cycle = PWMWEB
-            RPWM3.duty_cycle = PWMWEB 
-            LPWM4.duty_cycle = PWMWEB
-            RPWM4.duty_cycle = PWMWEB
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = 0
+            RPWM5.duty_cycle = 0
+            LPWM6.duty_cycle = PWMWEB
+            RPWM6.duty_cycle = 0
+            LPWM7.duty_cycle = 0
+            RPWM7.duty_cycle = 0
+            LPWM8.duty_cycle = PWMWEB
+            RPWM8.duty_cycle = 0
         elif cmd == "Nghienphai_Up":
-            GPIO.output(6, GPIO.LOW)
-            GPIO.output(12, GPIO.LOW)
-            GPIO.output(13, GPIO.LOW)
-            GPIO.output(17, GPIO.HIGH) 
-            
-            GPIO.output(16, GPIO.LOW)
-            GPIO.output(26, GPIO.LOW)
-            GPIO.output(20, GPIO.LOW)
-            GPIO.output(21, GPIO.HIGH) 
-            LPWM3.duty_cycle = PWMWEB
-            RPWM3.duty_cycle = PWMWEB 
-            LPWM4.duty_cycle = PWMWEB
-            RPWM4.duty_cycle = PWMWEB       
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = 0
+            RPWM5.duty_cycle = 0
+            LPWM6.duty_cycle = 0
+            RPWM6.duty_cycle = PWMWEB
+            LPWM7.duty_cycle = 0
+            RPWM7.duty_cycle = 0
+            LPWM8.duty_cycle = 0
+            RPWM8.duty_cycle = PWMWEB    
         elif cmd == "Nghiensau_Down":
-            GPIO.output(6, GPIO.LOW)
-            GPIO.output(12, GPIO.LOW)
-            GPIO.output(13, GPIO.LOW)
-            GPIO.output(17, GPIO.LOW) 
-            
-            GPIO.output(16, GPIO.HIGH)
-            GPIO.output(26, GPIO.LOW)
-            GPIO.output(20, GPIO.HIGH)
-            GPIO.output(21, GPIO.LOW) 
-            LPWM3.duty_cycle = PWMWEB
-            RPWM3.duty_cycle = PWMWEB
-            LPWM4.duty_cycle = PWMWEB
-            RPWM4.duty_cycle = PWMWEB
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = 0
+            RPWM5.duty_cycle = 0
+            LPWM6.duty_cycle = 0
+            RPWM6.duty_cycle = 0
+            LPWM7.duty_cycle = PWMWEB
+            RPWM7.duty_cycle = 0
+            LPWM8.duty_cycle = PWMWEB
+            RPWM8.duty_cycle = 0
         elif cmd == "Nghiensau_Up":
-            GPIO.output(6, GPIO.LOW)
-            GPIO.output(12, GPIO.LOW)
-            GPIO.output(13, GPIO.LOW)
-            GPIO.output(17, GPIO.LOW) 
-            
-            GPIO.output(16, GPIO.LOW)
-            GPIO.output(26, GPIO.HIGH)
-            GPIO.output(20, GPIO.LOW)
-            GPIO.output(21, GPIO.HIGH) 
-            LPWM3.duty_cycle = PWMWEB
-            RPWM3.duty_cycle = PWMWEB
-            LPWM4.duty_cycle = PWMWEB
-            RPWM4.duty_cycle = PWMWEB 
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = 0
+            RPWM5.duty_cycle = 0
+            LPWM6.duty_cycle = 0
+            RPWM6.duty_cycle = 0
+            LPWM7.duty_cycle = 0
+            RPWM7.duty_cycle = PWMWEB
+            LPWM8.duty_cycle = 0
+            RPWM8.duty_cycle = PWMWEB
         elif cmd == "Batden":
             GPIO.output(11, GPIO.HIGH) 
         elif cmd == "Tatden":
             GPIO.output(11, GPIO.LOW)
         elif cmd == "Laynuoc":
-            in1.duty_cycle = 0xFFFF #Kích lên hẳn mức high để cho in1 = 1, in2 = 0 -> kích bơm hút nước
-            in2.duty_cycle = 0
-            in3.duty_cycle = 0
-            in4.duty_cycle = 0
-        elif cmd == "Daynuoc":
-            in1.duty_cycle = 0
-            in2.duty_cycle = 0
-            in3.duty_cycle = 0xFFFF #Kích lên hẳn mức high để cho in3 = 1, in4 = 0 -> kích bơm đẩy nước
-            in4.duty_cycle = 0  
+            GPIO.output(18, GPIO.HIGH)
         elif cmd == "Dunglaynuoc":
-            in1.duty_cycle = 0
-            in2.duty_cycle = 0
-            in3.duty_cycle = 0
-            in4.duty_cycle = 0     
+            GPIO.output(18, GPIO.LOW)
         if cmd == "TienPS2":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.HIGH)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.HIGH) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.LOW)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.LOW)          
-            LPWM1.duty_cycle = 0
-            RPWM1.duty_cycle = 0
-            LPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
-            RPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            GPIO.output(4, GPIO.HIGH)           
+            LPWM3.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            RPWM3.duty_cycle = 0
+            LPWM4.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            RPWM4.duty_cycle = 0
         elif cmd == "TientraiPS2":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.HIGH)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.HIGH)  
-
-            GPIO.output(23, GPIO.HIGH)
-            GPIO.output(24, GPIO.LOW)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.LOW)  
+            GPIO.output(4, GPIO.HIGH)
+            LPWM2.duty_cycle = 0
+            RPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            LPWM3.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            RPWM3.duty_cycle = 0
+            LPWM4.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            RPWM4.duty_cycle = 0
+        elif cmd == "TienphaiPS2":
+            GPIO.output(4, GPIO.HIGH)
             LPWM1.duty_cycle = 0
             RPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
-            LPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
-            RPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
-        elif cmd == "TienphaiPS2":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.HIGH)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.HIGH) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.LOW)
-            GPIO.output(25, GPIO.HIGH)
-            GPIO.output(5, GPIO.LOW)  
-            LPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            LPWM3.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            RPWM3.duty_cycle = 0
+            LPWM4.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            RPWM4.duty_cycle = 0
+        elif cmd == "LuiPS2":
+            GPIO.output(4, GPIO.HIGH) 
+            LPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255) 
             RPWM1.duty_cycle = 0 
             LPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
-            RPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
-        elif cmd == "LuiPS2":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.LOW)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.LOW) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.HIGH)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.HIGH)  
-            LPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
-            RPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
-            LPWM2.duty_cycle = 0
             RPWM2.duty_cycle = 0
         elif cmd == "LuitraiPS2":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.LOW)
-            GPIO.output(27, GPIO.HIGH)
-            GPIO.output(22, GPIO.LOW) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.HIGH)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.HIGH) 
-            LPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
-            RPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255) 
-            LPWM2.duty_cycle = 0
-            RPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            GPIO.output(4, GPIO.HIGH)
+            LPWM4.duty_cycle = 0
+            RPWM4.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            LPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255) 
+            RPWM1.duty_cycle = 0 
+            LPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            RPWM2.duty_cycle = 0
         elif cmd == "LuiphaiPS2":
             GPIO.output(4, GPIO.HIGH)
-            GPIO.output(18, GPIO.LOW)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.LOW) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.HIGH)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.HIGH) 
-            LPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
-            RPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            LPWM3.duty_cycle = 0
+            RPWM3.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            LPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255) 
+            RPWM1.duty_cycle = 0
             LPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            RPWM2.duty_cycle = 0
             RPWM2.duty_cycle = 0
         elif cmd == "TraiPS2":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.HIGH)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.LOW) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.LOW)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.HIGH)  
+            GPIO.output(4, GPIO.HIGH)
             LPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
             RPWM1.duty_cycle = 0
-            LPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            LPWM3.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            RPWM3.duty_cycle = 0
             RPWM2.duty_cycle = 0
         elif cmd == "PhaiPS2":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.LOW)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.HIGH) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.HIGH)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.LOW)      
-            LPWM1.duty_cycle = 0
-            RPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
-            LPWM2.duty_cycle = 0
-            RPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            GPIO.output(4, GPIO.HIGH)
+            LPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            RPWM2.duty_cycle = 0
+            LPWM4.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
+            RPWM4.duty_cycle = 0
         elif cmd == "QuaytraiPS2":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.LOW)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.HIGH) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.LOW)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.HIGH)
+            GPIO.output(4, GPIO.HIGH)
             LPWM1.duty_cycle = 0xFFFF
             RPWM1.duty_cycle = 0
-            LPWM2.duty_cycle = 0
-            RPWM2.duty_cycle = 0xFFFF
+            LPWM4.duty_cycle = 0xFFFF
+            RPWM4.duty_cycle = 0
         elif cmd == "QuayphaiPS2":
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.HIGH)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.LOW) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.HIGH)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.LOW)
-            LPWM1.duty_cycle = 0
-            RPWM1.duty_cycle = 0xFFFF 
-            LPWM2.duty_cycle = 0xFFFF 
-            RPWM2.duty_cycle = 0 
+            GPIO.output(4, GPIO.HIGH)
+            LPWM2.duty_cycle = 0xFFFF
+            RPWM2.duty_cycle = 0
+            LPWM3.duty_cycle = 0xFFFF
+            RPWM3.duty_cycle = 0
         elif cmd == "LanPS2":
-            GPIO.output(6, GPIO.LOW)
-            GPIO.output(12, GPIO.HIGH)
-            GPIO.output(13, GPIO.LOW)
-            GPIO.output(17, GPIO.HIGH) 
-            
-            GPIO.output(16, GPIO.LOW)
-            GPIO.output(26, GPIO.HIGH)
-            GPIO.output(20, GPIO.LOW)
-            GPIO.output(21, GPIO.HIGH) 
-            LPWM3.duty_cycle = int(pwmRightPS2 * 65535 / 255) 
-            RPWM3.duty_cycle = int(pwmRightPS2 * 65535 / 255) 
-            LPWM4.duty_cycle = int(pwmRightPS2 * 65535 / 255) 
-            RPWM4.duty_cycle = int(pwmRightPS2 * 65535 / 255) 
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            RPWM5.duty_cycle = 0
+            LPWM6.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            RPWM6.duty_cycle = 0
+            LPWM7.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            RPWM7.duty_cycle = 0
+            LPWM8.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            RPWM8.duty_cycle = 0
         elif cmd == "NoiPS2":
-            GPIO.output(6, GPIO.HIGH)
-            GPIO.output(12, GPIO.LOW)
-            GPIO.output(13, GPIO.HIGH)
-            GPIO.output(17, GPIO.LOW) 
-            
-            GPIO.output(16, GPIO.HIGH)
-            GPIO.output(26, GPIO.LOW)
-            GPIO.output(20, GPIO.HIGH)
-            GPIO.output(21, GPIO.LOW) 
-            LPWM3.duty_cycle = int(pwmRightPS2 * 65535 / 255) 
-            RPWM3.duty_cycle = int(pwmRightPS2 * 65535 / 255) 
-            LPWM4.duty_cycle = int(pwmRightPS2 * 65535 / 255) 
-            RPWM4.duty_cycle = int(pwmRightPS2 * 65535 / 255)     
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = 0
+            RPWM5.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            LPWM6.duty_cycle = 0
+            RPWM6.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            LPWM7.duty_cycle = 0
+            RPWM7.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            LPWM8.duty_cycle = 0
+            RPWM8.duty_cycle = int(pwmRightPS2 * 65535 / 255)
         elif cmd == "BatdenPS2":
             GPIO.output(11, GPIO.HIGH) 
         elif cmd == "TatdenPS2":
             GPIO.output(11, GPIO.LOW)
         elif cmd == "LaynuocPS2":
-            in1.duty_cycle = 0xFFFF 
-            in2.duty_cycle = 0
-            in3.duty_cycle = 0
-            in4.duty_cycle = 0
-        elif cmd == "DaynuocPS2":
-            in1.duty_cycle = 0
-            in2.duty_cycle = 0
-            in3.duty_cycle = 0xFFFF 
-            in4.duty_cycle = 0  
+            GPIO.output(18, GPIO.HIGH)       
         elif cmd == "DunglaynuocPS2":
-            in1.duty_cycle = 0
-            in2.duty_cycle = 0
-            in3.duty_cycle = 0
-            in4.duty_cycle = 0          
+            GPIO.output(18, GPIO.LOW)        
         elif cmd in ["Dung", "DungPS2"]:
-            GPIO.output(4, GPIO.LOW)
-            GPIO.output(18, GPIO.LOW)
-            GPIO.output(27, GPIO.LOW)
-            GPIO.output(22, GPIO.LOW) 
-
-            GPIO.output(23, GPIO.LOW)
-            GPIO.output(24, GPIO.LOW)
-            GPIO.output(25, GPIO.LOW)
-            GPIO.output(5, GPIO.LOW)  
-
-            GPIO.output(6, GPIO.LOW)
-            GPIO.output(12, GPIO.LOW)
-            GPIO.output(13, GPIO.LOW)
-            GPIO.output(17, GPIO.LOW) 
-            
-            GPIO.output(16, GPIO.LOW)
-            GPIO.output(26, GPIO.LOW)
-            GPIO.output(20, GPIO.LOW)
-            GPIO.output(21, GPIO.LOW) 
-
+            GPIO.output(4, GPIO.LOW) 
             LPWM1.duty_cycle = 0
             RPWM1.duty_cycle = 0
             LPWM2.duty_cycle = 0
@@ -689,6 +440,14 @@ def control():
             RPWM3.duty_cycle = 0
             LPWM4.duty_cycle = 0
             RPWM4.duty_cycle = 0
+            LPWM5.duty_cycle = 0
+            RPWM5.duty_cycle = 0
+            LPWM6.duty_cycle = 0
+            RPWM6.duty_cycle = 0
+            LPWM7.duty_cycle = 0
+            RPWM7.duty_cycle = 0
+            LPWM8.duty_cycle = 0
+            RPWM8duty_cycle = 0
     return jsonify({"status": "ok"})
 camera = cv2.VideoCapture(0) #Mở camera mặc định (index 0)
 #Đặt độ phân giải khung hình video: 1280x720
@@ -737,7 +496,7 @@ def pid_control(axis, current, target, Kp, Ki, Kd):
     return Kp * error + Ki * integral_error[axis] + Kd * derivative
 
 def apply_corrections(out_yaw, out_pitch, out_roll, out_depth):   
-        if out_pitch > 0 & abs(pitch - target_values["pitch"]) > 2:
+        if out_pitch > 0  and Dung == 1 and  abs(pitch - target_values["pitch"]) > 2:
             GPIO.output(6, GPIO.HIGH)
             GPIO.output(12, GPIO.LOW)
             GPIO.output(13, GPIO.HIGH)
@@ -752,7 +511,7 @@ def apply_corrections(out_yaw, out_pitch, out_roll, out_depth):
             RPWM1.duty_cycle = int(abs(out_pitch) * 65535 / 255)
             LPWM2.duty_cycle = int(abs(out_pitch) * 65535 / 255)
             RPWM2.duty_cycle = int(abs(out_pitch) * 65535 / 255)
-        elif out_pitch < 0 & abs(pitch - target_values["pitch"]) > 2:
+        elif out_pitch < 0 and Dung == 1 and  abs(pitch - target_values["pitch"]) > 2:
             GPIO.output(6, GPIO.LOW)
             GPIO.output(12, GPIO.HIGH)
             GPIO.output(13, GPIO.LOW)
@@ -770,6 +529,7 @@ def apply_corrections(out_yaw, out_pitch, out_roll, out_depth):
             
 def pid_loop():
     global pitch, roll, yaw, current_depth
+    global out_pitch
     while True:
         if pid_active:
             try:
@@ -777,8 +537,8 @@ def pid_loop():
                 pressure = bmp280.pressure
                 current_depth = (pressure - 1013.25) / 10.0
 
-                acc_pitch = math.degrees(math.atan2(ay, az))
-                acc_roll = math.degrees(math.atan2(-ax, math.sqrt(ay**2 + az**2)))
+                acc_roll = math.degrees(math.atan2(-ay, math.sqrt(ax**2 + az**2)))
+                acc_pitch = math.degrees(math.atan2(-ax, math.sqrt(ay**2 + az**2)))
 
                 pitch =  alpha * pitch + (1 - alpha) * acc_pitch
                 roll = alpha * roll + (1 - alpha) * acc_roll
