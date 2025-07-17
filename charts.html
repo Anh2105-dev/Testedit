@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Biểu đồ cảm biến</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    canvas {
+      max-width: 100%;
+      margin: 15px auto;
+    }
+    .chart-container {
+      width: 90%;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <h2 align="center">Biểu đồ cảm biến ROV</h2>
+
+  <div class="chart-container"><canvas id="chartX"></canvas></div>
+  <div class="chart-container"><canvas id="chartY"></canvas></div>
+  <div class="chart-container"><canvas id="chartZ"></canvas></div>
+
+  <div class="chart-container"><canvas id="chartPitch"></canvas></div>
+  <div class="chart-container"><canvas id="chartRoll"></canvas></div>
+  <div class="chart-container"><canvas id="chartYaw"></canvas></div>
+
+  <div class="chart-container"><canvas id="chartDepth"></canvas></div>
+
+  <script>
+    const createChart = (elementId, label, color) => {
+      const ctx = document.getElementById(elementId).getContext('2d');
+      return new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: label,
+            data: [],
+            borderColor: color,
+            borderWidth: 2,
+            fill: false,
+            tension: 0.3
+          }]
+        },
+        options: {
+          animation: false,
+          scales: {
+            x: { display: false },
+            y: { beginAtZero: false }
+          }
+        }
+      });
+    };
+
+    const charts = {
+      X: createChart('chartX', 'Accel X', 'red'),
+      Y: createChart('chartY', 'Accel Y', 'green'),
+      Z: createChart('chartZ', 'Accel Z', 'blue'),
+      Pitch: createChart('chartPitch', 'Pitch', 'purple'),
+      Roll: createChart('chartRoll', 'Roll', 'orange'),
+      Yaw: createChart('chartYaw', 'Yaw', 'cyan'),
+      Depth: createChart('chartDepth', 'Độ sâu', 'brown'),
+    };
+
+    const maxPoints = 50;
+
+    const updateChart = (chart, value) => {
+      const now = new Date().toLocaleTimeString();
+      chart.data.labels.push(now);
+      chart.data.datasets[0].data.push(value);
+      if (chart.data.labels.length > maxPoints) {
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+      }
+      chart.update();
+    };
+
+    const sensorSource = new EventSource("/sensor_stream");
+    sensorSource.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      updateChart(charts.X, data.acc.x);
+      updateChart(charts.Y, data.acc.y);
+      updateChart(charts.Z, data.acc.z);
+      updateChart(charts.Depth, data.depth || data.pressure); // độ sâu tính từ áp suất
+    };
+
+    const orientationSource = new EventSource("/orientation_stream");
+    orientationSource.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      updateChart(charts.Pitch, data.pitch);
+      updateChart(charts.Roll, data.roll);
+      updateChart(charts.Yaw, data.yaw);
+    };
+  </script>
+</body>
+</html>

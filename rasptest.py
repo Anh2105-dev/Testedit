@@ -106,21 +106,23 @@ def control():
     data = request.get_json()   
     print(" Dữ liệu nhận:", data)
 
+    cmds = data.get("cmds")
+    
     if "auto_mode" in data:
-    auto_mode = data["auto_mode"]
-    print("Auto mode is now", "ON" if auto_mode else "OFF")
-    return jsonify({"status": "ok", "auto_mode": auto_mode})
+        auto_mode = data["auto_mode"]
+        print("Auto mode is now", "ON" if auto_mode else "OFF")
+        return jsonify({"status": "ok", "auto_mode": auto_mode})
 
     if auto_mode:
-    return jsonify({"status": "ignored", "reason": "Auto mode đang bật, không nhận lệnh điều khiển"})
+        return jsonify({"status": "ignored", "reason": "Auto mode đang bật, không nhận lệnh điều khiển"})
 
     if cmds == ["Set_Target_XYZ"]:
-    target_x = float(data.get("accx", 0.0))
-    target_y = float(data.get("accy", 0.0))
-    target_z = float(data.get("accz", 0.0))
-    print(f"Target Coordinates set: X={target_x}, Y={target_y}, Z={target_z}")
-    # lưu lại hoặc xử lý trong vòng lặp auto
-    return jsonify({"status": "ok", "target_xyz": [target_x, target_y, target_z]})
+        target_x = float(data.get("accx", 0.0))
+        target_y = float(data.get("accy", 0.0))
+        target_z = float(data.get("accz", 0.0))
+        print(f"Target Coordinates set: X={target_x}, Y={target_y}, Z={target_z}")
+        # lưu lại hoặc xử lý trong vòng lặp auto
+        return jsonify({"status": "ok", "target_xyz": [target_x, target_y, target_z]})
 
     if data.get("mode") == "set":
         mode = data.get("value", "web")
@@ -133,7 +135,6 @@ def control():
         print("PID mode is now", "ON" if pid_active else "OFF")
         return jsonify({"status": "ok", "pid_active": pid_active})
     
-    cmds = data.get("cmds")
     if isinstance(cmds, str):
         cmds = [cmds]  # chuyển chuỗi đơn thành danh sách
     if cmds == ["PID_Setpoints"] or (len(cmds) == 1 and cmds[0] == "PID_Setpoints"):
@@ -501,7 +502,7 @@ def sensor_stream():
             data = {
                 "acc": {"x": round(ax, 2), "y": round(ay, 2), "z": round(az, 2)},
                 "temp": round(temp, 2),
-                "pressure": round(pressure, 2)
+                "pressure": round(pressure, 2),
                 "depth": round(current_depth, 2)
             }
             # Stream dưới dạng text/plain
@@ -520,14 +521,14 @@ def pid_control(axis, current, target, Kp, Ki, Kd):
     return Kp * error + Ki * integral_error[axis] + Kd * derivative
 
 def apply_corrections(out_yaw, out_pitch, out_roll, out_depth):   
-        if out_pitch > 0  and Dung == 1 and  abs(pitch - target_values["pitch"]) > 2:
+        if out_pitch > 0 and  abs(pitch - target_values["pitch"]) > 2:
             GPIO.output(4, GPIO.HIGH)
 
             LPWM1.duty_cycle = int(abs(out_pitch) * 65535 / 255)
             RPWM1.duty_cycle = int(abs(out_pitch) * 65535 / 255)
             LPWM2.duty_cycle = int(abs(out_pitch) * 65535 / 255)
             RPWM2.duty_cycle = int(abs(out_pitch) * 65535 / 255)
-        elif out_pitch < 0 and Dung == 1 and  abs(pitch - target_values["pitch"]) > 2:
+        elif out_pitch < 0 and  abs(pitch - target_values["pitch"]) > 2:
             GPIO.output(4, GPIO.HIGH)
 
             LPWM1.duty_cycle = int(abs(out_pitch) * 65535 / 255)
@@ -581,7 +582,8 @@ threading.Thread(target=pid_loop, daemon=True).start()
 @app.route("/charts")
 def charts():
     return render_template("charts.html")
-    @app.route('/get_auto_mode')
+
+@app.route('/get_auto_mode')
 def get_auto_mode():
     return jsonify({"auto_mode": auto_mode})
 
