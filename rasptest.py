@@ -3,6 +3,7 @@ import cv2 #OpenCV để xử lý và lấy hình ảnh từ camera
 import RPi.GPIO as GPIO #Điều khiển GPIO trên Raspberry Pi
 from flask import Response, stream_with_context
 from flask_cors import CORS
+from flask import render_template
 import json
 import time
 import board
@@ -14,6 +15,7 @@ from mpu9250_jmdev.mpu_9250 import MPU9250
 from simple_pid import PID
 import threading
 import math
+
 
 app = Flask(__name__)
 CORS(app)
@@ -87,6 +89,9 @@ gpio_pins = [4, 18, 27, 22, 23, 24, 25, 5, 6, 12, 13, 16, 26, 20, 21, 17, 11]
 for pin in gpio_pins:
     GPIO.setup(pin, GPIO.OUT)
 
+auto_mode = False
+target_x = target_y = target_z = 0.0
+
 mode = "web" 
 pid_active = False
 
@@ -100,6 +105,22 @@ def control():
     global Dung
     data = request.get_json()   
     print(" Dữ liệu nhận:", data)
+
+    if "auto_mode" in data:
+    auto_mode = data["auto_mode"]
+    print("Auto mode is now", "ON" if auto_mode else "OFF")
+    return jsonify({"status": "ok", "auto_mode": auto_mode})
+
+    if auto_mode:
+    return jsonify({"status": "ignored", "reason": "Auto mode đang bật, không nhận lệnh điều khiển"})
+
+    if cmds == ["Set_Target_XYZ"]:
+    target_x = float(data.get("accx", 0.0))
+    target_y = float(data.get("accy", 0.0))
+    target_z = float(data.get("accz", 0.0))
+    print(f"Target Coordinates set: X={target_x}, Y={target_y}, Z={target_z}")
+    # lưu lại hoặc xử lý trong vòng lặp auto
+    return jsonify({"status": "ok", "target_xyz": [target_x, target_y, target_z]})
 
     if data.get("mode") == "set":
         mode = data.get("value", "web")
@@ -116,6 +137,7 @@ def control():
     if isinstance(cmds, str):
         cmds = [cmds]  # chuyển chuỗi đơn thành danh sách
     if cmds == ["PID_Setpoints"] or (len(cmds) == 1 and cmds[0] == "PID_Setpoints"):
+        target_values['x'] = float(data.get('x', 0.0))
         target_values['pitch'] = float(data.get('pitch', 0.0))
         target_values['yaw'] = float(data.get('yaw', 0.0))
         target_values['roll'] = float(data.get('roll', 0.0))
@@ -180,8 +202,8 @@ def control():
             RPWM4.duty_cycle = 0
         elif cmd == "Lui":
             GPIO.output(4, GPIO.HIGH) 
-            LPWM1.duty_cycle = PWMWEB 
-            RPWM1.duty_cycle = 0 
+            LPWM1.duty_cycle = 0 
+            RPWM1.duty_cycle = PWMWEB 
             LPWM2.duty_cycle = PWMWEB
             RPWM2.duty_cycle = 0
         elif cmd == "Luitrai":
@@ -226,16 +248,6 @@ def control():
             RPWM3.duty_cycle = 0
         elif cmd == "Lan":
             GPIO.output(4, GPIO.HIGH)
-            LPWM5.duty_cycle = 0
-            RPWM5.duty_cycle = PWMWEB
-            LPWM6.duty_cycle = PWMWEB
-            RPWM6.duty_cycle = 0
-            LPWM7.duty_cycle = PWMWEB
-            RPWM7.duty_cycle = 0
-            LPWM8.duty_cycle = 0
-            RPWM8.duty_cycle = PWMWEB
-        elif cmd == "Noi":
-            GPIO.output(4, GPIO.HIGH)
             LPWM5.duty_cycle = PWMWEB
             RPWM5.duty_cycle = 0
             LPWM6.duty_cycle = 0
@@ -244,6 +256,16 @@ def control():
             RPWM7.duty_cycle = PWMWEB
             LPWM8.duty_cycle = PWMWEB
             RPWM8.duty_cycle = 0
+        elif cmd == "Noi":
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = 0
+            RPWM5.duty_cycle = PWMWEB
+            LPWM6.duty_cycle = PWMWEB
+            RPWM6.duty_cycle = 0
+            LPWM7.duty_cycle = PWMWEB
+            RPWM7.duty_cycle = 0
+            LPWM8.duty_cycle = 0
+            RPWM8.duty_cycle = PWMWEB
         elif cmd == "Nghientruoc_Down":
             GPIO.output(4, GPIO.HIGH)
             LPWM5.duty_cycle = PWMWEB
@@ -356,8 +378,8 @@ def control():
             RPWM4.duty_cycle = 0
         elif cmd == "LuiPS2":
             GPIO.output(4, GPIO.HIGH) 
-            LPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255) 
-            RPWM1.duty_cycle = 0 
+            LPWM1.duty_cycle = 0 
+            RPWM1.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
             LPWM2.duty_cycle = int(pwmLeftPS2 * 65535 / 255)
             RPWM2.duty_cycle = 0
         elif cmd == "LuitraiPS2":
@@ -404,16 +426,6 @@ def control():
             RPWM3.duty_cycle = 0
         elif cmd == "LanPS2":
             GPIO.output(4, GPIO.HIGH)
-            LPWM5.duty_cycle = 0
-            RPWM5.duty_cycle = int(pwmRightPS2 * 65535 / 255)
-            LPWM6.duty_cycle = int(pwmRightPS2 * 65535 / 255)
-            RPWM6.duty_cycle = 0
-            LPWM7.duty_cycle = int(pwmRightPS2 * 65535 / 255)
-            RPWM7.duty_cycle = 0
-            LPWM8.duty_cycle = 0
-            RPWM8.duty_cycle = int(pwmRightPS2 * 65535 / 255)
-        elif cmd == "NoiPS2":
-            GPIO.output(4, GPIO.HIGH)
             LPWM5.duty_cycle = int(pwmRightPS2 * 65535 / 255)
             RPWM5.duty_cycle = 0
             LPWM6.duty_cycle = 0
@@ -422,6 +434,16 @@ def control():
             RPWM7.duty_cycle = int(pwmRightPS2 * 65535 / 255)
             LPWM8.duty_cycle = int(pwmRightPS2 * 65535 / 255)
             RPWM8.duty_cycle = 0
+        elif cmd == "NoiPS2":
+            GPIO.output(4, GPIO.HIGH)
+            LPWM5.duty_cycle = 0
+            RPWM5.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            LPWM6.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            RPWM6.duty_cycle = 0
+            LPWM7.duty_cycle = int(pwmRightPS2 * 65535 / 255)
+            RPWM7.duty_cycle = 0
+            LPWM8.duty_cycle = 0
+            RPWM8.duty_cycle = int(pwmRightPS2 * 65535 / 255)
         elif cmd == "BatdenPS2":
             GPIO.output(27, GPIO.HIGH) 
         elif cmd == "TatdenPS2":
@@ -474,11 +496,13 @@ def sensor_stream():
             ax, ay, az = mpu.readAccelerometerMaster()
             temp = bmp280.temperature
             pressure = bmp280.pressure
+            current_depth = (pressure - 1013.25) / 10.0
             # Tạo dữ liệu JSON
             data = {
                 "acc": {"x": round(ax, 2), "y": round(ay, 2), "z": round(az, 2)},
                 "temp": round(temp, 2),
                 "pressure": round(pressure, 2)
+                "depth": round(current_depth, 2)
             }
             # Stream dưới dạng text/plain
             yield f"data: {json.dumps(data)}\n\n"
@@ -554,5 +578,11 @@ def orientation_stream():
     return Response(generate_orientation_data(), mimetype='text/event-stream')
 
 threading.Thread(target=pid_loop, daemon=True).start()
+@app.route("/charts")
+def charts():
+    return render_template("charts.html")
+    @app.route('/get_auto_mode')
+def get_auto_mode():
+    return jsonify({"auto_mode": auto_mode})
 
 app.run(host='0.0.0.0', port=5000)
