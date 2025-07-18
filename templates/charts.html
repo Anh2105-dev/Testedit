@@ -5,28 +5,46 @@
   <title>Biểu đồ cảm biến</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    canvas {
-      max-width: 100%;
-      margin: 15px auto;
-    }
-    .chart-container {
-      width: 90%;
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      width: 95%;
       margin: auto;
+    }
+    .grid-item {
+      background: #f8f8f8;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    canvas {
+      width: 100%;
+      height: 200px;
+    }
+    h2 {
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <h2 align="center">Biểu đồ cảm biến ROV</h2>
+  <h2>Biểu đồ cảm biến ROV</h2>
 
-  <div class="chart-container"><canvas id="chartX"></canvas></div>
-  <div class="chart-container"><canvas id="chartY"></canvas></div>
-  <div class="chart-container"><canvas id="chartZ"></canvas></div>
+  <div class="grid-container">
+    <!-- Hàng 1: AccX, AccY, AccZ -->
+    <div class="grid-item"><canvas id="chartX"></canvas></div>
+    <div class="grid-item"><canvas id="chartY"></canvas></div>
+    <div class="grid-item"><canvas id="chartZ"></canvas></div>
 
-  <div class="chart-container"><canvas id="chartPitch"></canvas></div>
-  <div class="chart-container"><canvas id="chartRoll"></canvas></div>
-  <div class="chart-container"><canvas id="chartYaw"></canvas></div>
+    <!-- Hàng 2: Pitch, Roll, Yaw -->
+    <div class="grid-item"><canvas id="chartPitch"></canvas></div>
+    <div class="grid-item"><canvas id="chartRoll"></canvas></div>
+    <div class="grid-item"><canvas id="chartYaw"></canvas></div>
 
-  <div class="chart-container"><canvas id="chartDepth"></canvas></div>
+    <!-- Hàng 3: trống - Depth - trống -->
+    <div class="grid-item"></div>
+    <div class="grid-item"><canvas id="chartDepth"></canvas></div>
+    <div class="grid-item"></div>
+  </div>
 
   <script>
     const createChart = (elementId, label, color) => {
@@ -83,7 +101,7 @@
       updateChart(charts.X, data.acc.x);
       updateChart(charts.Y, data.acc.y);
       updateChart(charts.Z, data.acc.z);
-      updateChart(charts.Depth, data.depth || data.pressure); // độ sâu tính từ áp suất
+      updateChart(charts.Depth, data.depth || data.pressure);
     };
 
     const orientationSource = new EventSource("/orientation_stream");
