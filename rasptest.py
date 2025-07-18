@@ -102,7 +102,7 @@ def get_mode():
 @app.route('/control', methods=['POST'])
 def control():
     global mode
-    global Dung
+    global auto_mode
     data = request.get_json()   
     print(" Dữ liệu nhận:", data)
 
@@ -113,7 +113,7 @@ def control():
         print("Auto mode is now", "ON" if auto_mode else "OFF")
         return jsonify({"status": "ok", "auto_mode": auto_mode})
 
-    if auto_mode:
+    if auto_mode and "cmds" in data:
         return jsonify({"status": "ignored", "reason": "Auto mode đang bật, không nhận lệnh điều khiển"})
 
     if cmds == ["Set_Target_XYZ"]:
