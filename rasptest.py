@@ -100,7 +100,7 @@ def control():
     global mode
     global auto_mode
     data = request.get_json()   
-    print(" Dá»¯ liá»‡u nháº­n:", data)
+    print(" Đang nhận lệnh:", data)
 
     cmds = data.get("cmds")
     
@@ -574,7 +574,7 @@ def pid_loop():
         if pid_active:
             try:
                 ax, ay, az = mpu.readAccelerometerMaster()
-                mx, my, mz = mpu.readMagnetometerMaster() 
+                gx, gy, gz = mpu.readGyroscopeMaster()
                 pressure = bmp280.pressure
                 current_depth = (pressure - 1013.25) / 10.0
 
@@ -583,8 +583,16 @@ def pid_loop():
 
                 pitch =  alpha * pitch + (1 - alpha) * acc_pitch
                 roll = alpha * roll + (1 - alpha) * acc_roll
-                yaw = math.degrees(math.atan2(my, mx))
-                
+                current_time = time.time()
+                dt = current_time - last_time
+                last_time = current_time
+
+                yaw += gz * dt
+                if yaw > 180:
+                    yaw -= 360
+                elif yaw < -180:
+                    yaw += 360
+
                 out_pitch = pid_control("pitch", pitch, target_values["pitch"], Kp_pitch, Ki_pitch, Kd_pitch)
                 out_roll = pid_control("roll", roll, target_values["roll"], Kp_roll, Ki_roll, Kd_roll)
                 out_yaw = pid_control("yaw", yaw, target_values["yaw"], Kp_yaw, Ki_yaw, Kd_yaw)
