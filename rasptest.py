@@ -551,6 +551,18 @@ def apply_corrections(out_yaw, out_pitch, out_roll, out_depth):
             RPWM6.duty_cycle = int(abs(out_roll) * 655350 / 255)
             LPWM8.duty_cycle = int(abs(out_pitch) * 655350 / 255)
             RPWM8.duty_cycle = 0
+        if out_yaw > 0 and abs(yaw - target_values["yaw"]) > 2:
+            GPIO.output(23, GPIO.HIGH)
+            LPWM1.duty_cycle = 0
+            RPWM1.duty_cycle = int(abs(out_yaw) * 65535 / 255)
+            LPWM4.duty_cycle = 0
+            RPWM4.duty_cycle = int(abs(out_yaw) * 65535 / 255)
+        elif out_yaw < 0 and abs(yaw - target_values["yaw"]) > 2:
+            GPIO.output(23, GPIO.HIGH)
+            LPWM2.duty_cycle = int(abs(out_yaw) * 65535 / 255)
+            RPWM2.duty_cycle = 0
+            LPWM3.duty_cycle = int(abs(out_yaw) * 65535 / 255)
+            RPWM3.duty_cycle = 0
             print(f"[CORRECT] Pitch={pitch:.2f}, out_pitch={out_pitch:.2f}, duty={int(abs(out_pitch) * 65535 / 255)}")
 
 
@@ -562,6 +574,7 @@ def pid_loop():
         if pid_active:
             try:
                 ax, ay, az = mpu.readAccelerometerMaster()
+                mx, my, mz = mpu.readMagnetometerMaster() 
                 pressure = bmp280.pressure
                 current_depth = (pressure - 1013.25) / 10.0
 
@@ -570,7 +583,8 @@ def pid_loop():
 
                 pitch =  alpha * pitch + (1 - alpha) * acc_pitch
                 roll = alpha * roll + (1 - alpha) * acc_roll
-
+                yaw = math.degrees(math.atan2(my, mx))
+                
                 out_pitch = pid_control("pitch", pitch, target_values["pitch"], Kp_pitch, Ki_pitch, Kd_pitch)
                 out_roll = pid_control("roll", roll, target_values["roll"], Kp_roll, Ki_roll, Kd_roll)
                 out_yaw = pid_control("yaw", yaw, target_values["yaw"], Kp_yaw, Ki_yaw, Kd_yaw)
