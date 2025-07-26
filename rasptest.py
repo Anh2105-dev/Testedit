@@ -201,7 +201,7 @@ def control():
             LPWM1.duty_cycle = 0 
             RPWM1.duty_cycle = PWMWEB 
             LPWM2.duty_cycle = 0
-            RPWM2.duty_cycle = PWMWEB*0.95
+            RPWM2.duty_cycle = int(PWMWEB*0.95)
         elif cmd == "Luitrai":
             GPIO.output(23, GPIO.HIGH)
             LPWM4.duty_cycle = PWMWEB
@@ -209,7 +209,7 @@ def control():
             LPWM1.duty_cycle = 0 
             RPWM1.duty_cycle = PWMWEB
             LPWM2.duty_cycle = 0
-            RPWM2.duty_cycle = PWMWEB*0.95
+            RPWM2.duty_cycle = int(PWMWEB*0.95)
             LPWM3.duty_cycle = 0
             RPWM3.duty_cycle = 0
         elif cmd == "Luiphai":
@@ -219,7 +219,7 @@ def control():
             LPWM1.duty_cycle = 0 
             RPWM1.duty_cycle = PWMWEB
             LPWM2.duty_cycle = 0
-            RPWM2.duty_cycle = PWMWEB*0.95
+            RPWM2.duty_cycle = int(PWMWEB*0.95)
             LPWM4.duty_cycle = 0
             RPWM4.duty_cycle = 0
         elif cmd == "Trai":
@@ -231,7 +231,7 @@ def control():
         elif cmd == "Phai":
             GPIO.output(23, GPIO.HIGH)
             LPWM2.duty_cycle = 0
-            RPWM2.duty_cycle = PWMWEB*0.95
+            RPWM2.duty_cycle = int(PWMWEB*0.95)
             LPWM4.duty_cycle = 0
             RPWM4.duty_cycle = PWMWEB
         elif cmd == "Quaytrai":
@@ -535,11 +535,14 @@ def apply_corrections(out_yaw, out_pitch, out_roll, out_depth):
             GPIO.output(23, GPIO.HIGH)
             LPWM5.duty_cycle = int(abs(out_roll) * 65535 / 255)
             RPWM5.duty_cycle = 0
-
+            LPWM7.duty_cycle = 0
+            RPWM7.duty_cycle = int(abs(out_pitch) * 65535 / 255)
         elif out_roll < 0 and abs(roll - target_values["roll"]) > 2:
             GPIO.output(23, GPIO.HIGH)
             LPWM6.duty_cycle = 0
             RPWM6.duty_cycle = int(abs(out_roll) * 65535 / 255)
+            LPWM8.duty_cycle = int(abs(out_pitch) * 65535 / 255)
+            RPWM8.duty_cycle = 0
             print(f"[CORRECT] Pitch={pitch:.2f}, out_pitch={out_pitch:.2f}, duty={int(abs(out_pitch) * 65535 / 255)}")
 
 
